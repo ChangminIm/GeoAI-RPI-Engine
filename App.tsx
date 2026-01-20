@@ -36,102 +36,168 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm backdrop-blur-md bg-white/80">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600 to-cyan-400 animate-pulse"></div>
+    <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
+      <header className="bg-white/80 border-b border-slate-200 sticky top-0 z-50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-200 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 group-hover:scale-110 transition-transform duration-500"></div>
               <svg className="w-6 h-6 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-black tracking-tighter">GeoAI <span className="text-indigo-600">RPI Engine</span></h1>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Relational Population Index Analyzer</p>
+              <h1 className="text-2xl font-black tracking-tighter text-slate-900">GeoAI <span className="text-indigo-600">RPI Engine</span></h1>
+              <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Relational Population Index Analyzer</p>
+            </div>
+          </div>
+          <div className="hidden md:flex items-center gap-4">
+            <div className="h-8 w-[1px] bg-slate-200 mx-2"></div>
+            <div className="text-right">
+              <div className="text-[10px] font-black text-slate-400 uppercase">System Status</div>
+              <div className="text-xs font-bold text-emerald-500 flex items-center gap-1 justify-end">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                Attention Model Active
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 mt-10 space-y-10">
-        {/* Research Input Section */}
-        <section className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-            <span className="text-8xl font-black">X_rpi</span>
+      <main className="max-w-7xl mx-auto px-6 mt-12 space-y-12">
+        {/* Input Section */}
+        <section className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 opacity-5 pointer-events-none rotate-12">
+            <span className="text-[15rem] font-black leading-none">RPI</span>
           </div>
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-            <div>
-              <h2 className="text-2xl font-black text-slate-800 tracking-tight">하이브리드 데이터 마이닝</h2>
-              <p className="text-sm text-slate-500 font-medium mt-1">한 달 살기 수기, SNS, 블로그 데이터를 입력하여 RPI를 산출합니다.</p>
+          <div className="relative z-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+              <div>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">하이브리드 데이터 마이닝</h2>
+                {/* Fixed: Escaped curly braces in text to prevent JSX expression parsing errors */}
+                <p className="text-slate-500 font-medium max-w-xl">한 달 살기 수기, SNS 데이터로부터 정서적 애착($X_{'{'}emo{'}'}$), 공간 점유($X_{'{'}spa{'}'}$), 사회적 교류($X_{'{'}soc{'}'}$) 지표를 추출합니다.</p>
+              </div>
+              <div className="flex gap-2">
+                <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-black border border-indigo-100 uppercase tracking-wider">Transformer-based</span>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-bold border border-indigo-100">#Self-Attention</span>
-              <span className="px-3 py-1 bg-cyan-50 text-cyan-600 rounded-full text-[10px] font-bold border border-cyan-100">#ST-KG</span>
+            
+            <textarea
+              className="w-full h-56 p-8 bg-slate-50 border border-slate-200 rounded-[2.5rem] focus:ring-8 focus:ring-indigo-500/5 focus:border-indigo-400 outline-none transition-all text-slate-800 leading-relaxed text-lg placeholder:text-slate-300 shadow-inner"
+              placeholder="분석할 연구 데이터를 입력하세요. (수기 기행문, SNS 포스트 등)"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+            />
+            
+            <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-6 text-slate-400">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase tracking-widest mb-1">Target Model</span>
+                  <span className="text-sm font-bold text-slate-600">Gemini 3 Pro</span>
+                </div>
+                <div className="w-[1px] h-8 bg-slate-200"></div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase tracking-widest mb-1">Architecture</span>
+                  <span className="text-sm font-bold text-slate-600">Self-Attention</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={handleAnalyze}
+                disabled={isAnalyzing || !inputText.trim()}
+                className={`group relative flex items-center gap-4 px-14 py-6 rounded-[2rem] font-black text-xl transition-all overflow-hidden ${
+                  isAnalyzing || !inputText.trim()
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-900 text-white hover:bg-black hover:scale-[1.03] active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.2)]'
+                }`}
+              >
+                <span className="relative z-10">{isAnalyzing ? "RPI 알고리즘 연산 중..." : "RPI 분석 실행"}</span>
+                {!isAnalyzing && (
+                  <div className="relative z-10 w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
+                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              </button>
             </div>
-          </div>
-          <textarea
-            className="w-full h-48 p-6 bg-slate-50 border border-slate-200 rounded-[2rem] focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 outline-none transition-all text-slate-700 leading-relaxed text-lg"
-            placeholder="[연구 데이터 입력] 예: 1주차에는 마을 회관 근처 숙소에 머물며 긴장했지만, 2주차에 로컬 시장 상인분들과 대화하며 큰 유대감을 느꼈습니다..."
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-          />
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={handleAnalyze}
-              disabled={isAnalyzing || !inputText.trim()}
-              className={`group flex items-center gap-3 px-12 py-5 rounded-2xl font-black text-xl transition-all shadow-2xl ${
-                isAnalyzing || !inputText.trim()
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                  : 'bg-slate-900 text-white hover:bg-black hover:scale-[1.02] active:scale-95'
-              }`}
-            >
-              {isAnalyzing ? "Self-Attention 모델링 중..." : "RPI 가중치 산출"}
-              {!isAnalyzing && <svg className="w-6 h-6 animate-pulse text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>}
-            </button>
           </div>
         </section>
 
-        {error && <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-6 rounded-r-2xl font-bold flex items-center gap-3 animate-head-shake"><span>❌</span> {error}</div>}
+        {error && (
+          <div className="bg-rose-50 border border-rose-100 p-6 rounded-[2rem] text-rose-700 font-black flex items-center gap-4 animate-in fade-in zoom-in">
+            <div className="w-10 h-10 bg-rose-500 text-white rounded-xl flex items-center justify-center text-xl shadow-lg shadow-rose-200">!</div>
+            {error}
+          </div>
+        )}
 
-        {/* Results Dash */}
+        {/* Dashboard Results */}
         {result && (
-          <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-            {/* Main Score & XAI Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-1 bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 rounded-[3rem] text-white shadow-2xl flex flex-col items-center justify-center text-center">
-                <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-2">Relational Population Index</div>
-                <div className="text-8xl font-black mb-2">{result.rpiScore}</div>
-                <div className="h-1 w-20 bg-white/20 rounded-full mb-4"></div>
-                <p className="text-indigo-100 text-xs font-bold px-4 leading-tight opacity-80">
-                  {result.rpiScore >= 80 ? '임계치(Critical Point)를 넘은 안정적 관계' : 
-                   result.rpiScore >= 50 ? '관계 형성 잠재력이 높은 유망 단계' : '초기 탐색 및 이탈 주의 단계'}
-                </p>
-              </div>
-
-              <div className="md:col-span-2 bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-800 mb-4">설명 가능한 AI (SHAP 기여 분석)</h3>
-                  <div className="space-y-4">
-                    {Object.entries(result.shapValue).map(([key, val]) => (
-                      <div key={key}>
-                        <div className="flex justify-between text-xs font-bold mb-1">
-                          <span className="text-slate-500">{key === 'emo' ? '정서적 애착' : key === 'spa' ? '공간적 점유' : '사회적 교류'}</span>
-                          {/* Fixed: Explicitly cast unknown value to number for toFixed method */}
-                          <span className="text-indigo-600">+{(val as number).toFixed(1)}</span>
-                        </div>
-                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                          {/* Fixed: Explicitly cast unknown value to number for arithmetic operation */}
-                          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${((val as number) / 50) * 100}%` }}></div>
-                        </div>
-                      </div>
-                    ))}
+          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+            {/* Summary & Contribution Analysis */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-4 bg-slate-900 p-10 rounded-[3.5rem] text-white shadow-3xl flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/20 to-transparent"></div>
+                <div className="relative z-10">
+                  <div className="text-[11px] font-black uppercase tracking-[0.3em] text-indigo-300/60 mb-6">Relational Population Index</div>
+                  <div className="text-[9rem] font-black leading-none tracking-tighter mb-4 text-white drop-shadow-2xl">
+                    {result.rpiScore}
+                  </div>
+                  <div className="h-1.5 w-24 bg-indigo-500 rounded-full mx-auto mb-8 shadow-[0_0_20px_rgba(99,102,241,0.5)]"></div>
+                  <div className="px-6 py-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+                    <span className="text-sm font-black text-indigo-300">
+                      {result.rpiScore >= 80 ? 'CRITICAL POINT 상회: 안정 정착군' : 
+                       result.rpiScore >= 50 ? 'POTENTIAL: 관계 확장 유망군' : 'EARLY STAGE: 초기 진입/이탈 위험'}
+                    </span>
                   </div>
                 </div>
-                <p className="text-sm text-slate-500 italic mt-6 border-t border-slate-100 pt-4">
-                  " {result.summary} "
-                </p>
+              </div>
+
+              <div className="lg:col-span-8 bg-white p-10 rounded-[3.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center mb-10">
+                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">XAI: SHAP 기여도 역산 분석</h3>
+                    <div className="px-3 py-1 bg-slate-50 rounded-lg border border-slate-200 text-[10px] font-black text-slate-400">VALIDATION MODE</div>
+                  </div>
+                  <div className="space-y-8">
+                    {[
+                      { key: 'emo', label: '정서적 애착', sub: 'X_emo', color: 'bg-indigo-500' },
+                      { key: 'spa', label: '공간적 점유', sub: 'X_spa', color: 'bg-emerald-500' },
+                      { key: 'soc', label: '사회적 교류', sub: 'X_soc', color: 'bg-amber-500' }
+                    ].map((item) => {
+                      const val = (result.shapValue[item.key] as number) || 0;
+                      return (
+                        <div key={item.key}>
+                          <div className="flex justify-between items-end mb-3">
+                            <div>
+                              <span className="text-sm font-black text-slate-800 mr-2">{item.label}</span>
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.sub}</span>
+                            </div>
+                            <span className={`text-sm font-black ${val >= 0 ? 'text-indigo-600' : 'text-rose-500'}`}>
+                              {val >= 0 ? '+' : ''}{val.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="w-full h-4 bg-slate-50 rounded-full overflow-hidden p-1 border border-slate-100 shadow-inner">
+                            <div 
+                              className={`h-full ${item.color} rounded-full transition-all duration-1000 ease-out shadow-sm`}
+                              style={{ width: `${Math.min(Math.abs(val) * 2, 100)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="mt-10 pt-8 border-t border-slate-100">
+                  <div className="flex gap-4 items-start">
+                    <div className="w-8 h-8 bg-indigo-50 rounded-full flex items-center justify-center flex-shrink-0 text-indigo-500">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" /></svg>
+                    </div>
+                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">
+                      "{result.summary}"
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -139,26 +205,41 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* History Explorer */}
+        {/* History / Research Repository */}
         {history.length > 0 && (
-          <div className="pt-10 border-t border-slate-200">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Research Repository</h3>
-            <div className="flex gap-4 overflow-x-auto pb-6 px-2 no-scrollbar">
+          <div className="pt-20 border-t border-slate-200">
+            <div className="flex justify-between items-center mb-10 px-2">
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.4em]">Research Repository</h3>
+              <div className="h-[1px] flex-grow mx-8 bg-slate-200/60"></div>
+              <span className="text-xs font-bold text-slate-400">{history.length} Analysis Stored</span>
+            </div>
+            <div className="flex gap-6 overflow-x-auto pb-10 px-2 no-scrollbar snap-x">
               {history.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => {setResult(item.result); setInputText(item.text); window.scrollTo({top: 400, behavior: 'smooth'});}}
-                  className="flex-shrink-0 w-72 bg-white p-6 rounded-[2rem] border border-slate-200 text-left hover:border-indigo-400 transition-all group"
+                  onClick={() => {setResult(item.result); setInputText(item.text); window.scrollTo({top: 500, behavior: 'smooth'});}}
+                  className="flex-shrink-0 w-80 bg-white p-8 rounded-[2.5rem] border border-slate-200 text-left hover:border-indigo-400 hover:shadow-2xl hover:shadow-indigo-100 transition-all group snap-start"
                 >
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="px-2 py-0.5 bg-slate-100 text-[10px] font-bold rounded-lg text-slate-500">ID: {item.id}</span>
-                    <span className="text-indigo-600 font-black text-lg group-hover:scale-110 transition-transform">{item.result.rpiScore}</span>
+                  <div className="flex justify-between items-center mb-6">
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-black text-slate-400 uppercase mb-1">Session ID</span>
+                      <span className="text-[11px] font-black text-indigo-500">#{item.id}</span>
+                    </div>
+                    <div className="text-3xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+                      {item.result.rpiScore}
+                    </div>
                   </div>
-                  <p className="text-xs font-bold text-slate-700 line-clamp-3 mb-4 leading-relaxed opacity-70 italic">"{item.text}"</p>
-                  <div className="flex gap-1">
-                    <div className="h-1 flex-1 bg-indigo-500" style={{ opacity: item.result.weights.alpha }}></div>
-                    <div className="h-1 flex-1 bg-emerald-500" style={{ opacity: item.result.weights.beta }}></div>
-                    <div className="h-1 flex-1 bg-amber-500" style={{ opacity: item.result.weights.gamma }}></div>
+                  <p className="text-xs font-bold text-slate-500 line-clamp-3 mb-6 leading-relaxed">
+                    {item.text}
+                  </p>
+                  <div className="flex gap-1 h-1.5 rounded-full overflow-hidden bg-slate-100">
+                    <div className="bg-indigo-500" style={{ width: `${item.result.weights.alpha * 100}%` }}></div>
+                    <div className="bg-emerald-500" style={{ width: `${item.result.weights.beta * 100}%` }}></div>
+                    <div className="bg-amber-500" style={{ width: `${item.result.weights.gamma * 100}%` }}></div>
+                  </div>
+                  <div className="mt-4 flex justify-between items-center">
+                    <span className="text-[9px] font-bold text-slate-400">{new Date(item.timestamp).toLocaleTimeString()}</span>
+                    <span className="text-[9px] font-black text-indigo-400 uppercase">View Details →</span>
                   </div>
                 </button>
               ))}
@@ -167,12 +248,15 @@ const App: React.FC = () => {
         )}
       </main>
       
-      <footer className="mt-20 border-t border-slate-200 py-12 bg-white flex flex-col items-center">
-        <div className="flex items-center gap-2 mb-4 opacity-30 grayscale">
-          <div className="w-6 h-6 bg-slate-800 rounded"></div>
-          <span className="font-black text-sm tracking-tighter">GeoAI Lab Research Unit</span>
+      <footer className="mt-32 border-t border-slate-200 py-20 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
+          <div className="flex items-center gap-3 mb-8 opacity-20 hover:opacity-100 transition-opacity duration-700 cursor-default">
+            <div className="w-8 h-8 bg-slate-900 rounded-lg"></div>
+            <span className="font-black text-xl tracking-tighter text-slate-900 uppercase">GeoAI Lab Research</span>
+          </div>
+          <p className="text-[10px] text-slate-300 font-black uppercase tracking-[0.5em] mb-4">Transformer-based RPI Modeling System v2.1</p>
+          <p className="text-[9px] text-slate-400 font-medium">© 2024 Research Methodology Optimization Framework. All Rights Reserved.</p>
         </div>
-        <p className="text-[10px] text-slate-300 font-bold uppercase tracking-[0.4em]">Transformer-based RPI Modeling System</p>
       </footer>
     </div>
   );
