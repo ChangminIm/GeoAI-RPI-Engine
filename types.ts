@@ -1,14 +1,14 @@
 
 export interface RPIMetrics {
-  emo: number; // X_emo: 정서적 애착
-  spa: number; // X_spa: 공간적 점유
-  soc: number; // X_soc: 사회적 교류
+  emo: number; // 정서적 애착
+  spa: number; // 공간적 점유
+  soc: number; // 사회적 교류
 }
 
 export interface RPIWeights {
-  alpha: number; // weight for emo
-  beta: number;  // weight for spa
-  gamma: number; // weight for soc
+  alpha: number; // 정서적 애착 가중치
+  beta: number;  // 공간적 점유 가중치
+  gamma: number; // 사회적 교류 가중치
 }
 
 export interface TrajectoryPoint {
@@ -28,7 +28,7 @@ export interface KnowledgeEdge {
   strength: number;
 }
 
-// Factor interface required for AttentionChart component
+// Factor interface added to satisfy requirements of the AttentionChart component
 export interface Factor {
   name: string;
   weight: number;

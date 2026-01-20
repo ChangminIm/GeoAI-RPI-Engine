@@ -2,8 +2,7 @@
 import React from 'react';
 import { 
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip,
-  AreaChart, Area
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip
 } from 'recharts';
 import { AnalysisResult } from '../types';
 
@@ -19,85 +18,51 @@ const RPIVisualization: React.FC<Props> = ({ data }) => {
   ];
 
   return (
-    <div className="space-y-12">
-      {/* 점수 산출 근거 상세 */}
-      <div className="bg-indigo-900 text-white p-10 rounded-[4rem] shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-10 opacity-5">
-          <svg className="w-48 h-48" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg>
-        </div>
+    <div className="space-y-12 pb-12">
+      {/* 점수 산출 공식 보드 (Explainability) */}
+      <div className="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent pointer-events-none"></div>
         <div className="relative z-10">
-          <h3 className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.4em] mb-10 text-center md:text-left">최종 관계인구 지수 산출 근거 (Calculated Logic)</h3>
-          <div className="flex flex-col md:flex-row items-center justify-around gap-8">
-            <div className="flex flex-col items-center">
-              <span className="text-indigo-300 text-xs font-bold mb-3">정서적 애착</span>
-              <div className="flex items-center gap-3">
-                <span className="text-4xl font-black">{data.metrics.emo}</span>
-                <span className="text-indigo-500 text-sm font-bold">점</span>
-                <span className="text-indigo-400 text-lg">×</span>
-                <span className="text-2xl font-bold text-indigo-300">{data.weights.alpha.toFixed(2)}</span>
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
+            <h3 className="text-indigo-300 text-xs font-black uppercase tracking-[0.4em]">최종 지수 산출 근거 (RPI Breakdown)</h3>
+          </div>
+          
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+            <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { label: '정서적 애착', score: data.metrics.emo, weight: data.weights.alpha, color: 'indigo' },
+                { label: '공간적 점유', score: data.metrics.spa, weight: data.weights.beta, color: 'emerald' },
+                { label: '사회적 교류', score: data.metrics.soc, weight: data.weights.gamma, color: 'amber' }
+              ].map((item, idx) => (
+                <div key={idx} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] text-center hover:bg-white/10 transition-colors">
+                  <span className="text-slate-400 text-[10px] font-black uppercase mb-3 block">{item.label}</span>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-3xl font-black text-white">{item.score}</span>
+                    <span className="text-slate-500 font-bold">×</span>
+                    <span className="text-xl font-bold text-indigo-400">{item.weight.toFixed(2)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
               </div>
             </div>
-            <span className="text-3xl text-indigo-600 font-bold hidden md:block">+</span>
-            <div className="flex flex-col items-center">
-              <span className="text-indigo-300 text-xs font-bold mb-3">공간적 점유</span>
-              <div className="flex items-center gap-3">
-                <span className="text-4xl font-black">{data.metrics.spa}</span>
-                <span className="text-indigo-500 text-sm font-bold">점</span>
-                <span className="text-indigo-400 text-lg">×</span>
-                <span className="text-2xl font-bold text-indigo-300">{data.weights.beta.toFixed(2)}</span>
-              </div>
-            </div>
-            <span className="text-3xl text-indigo-600 font-bold hidden md:block">+</span>
-            <div className="flex flex-col items-center">
-              <span className="text-indigo-300 text-xs font-bold mb-3">사회적 교류</span>
-              <div className="flex items-center gap-3">
-                <span className="text-4xl font-black">{data.metrics.soc}</span>
-                <span className="text-indigo-500 text-sm font-bold">점</span>
-                <span className="text-indigo-400 text-lg">×</span>
-                <span className="text-2xl font-bold text-indigo-300">{data.weights.gamma.toFixed(2)}</span>
-              </div>
-            </div>
-            <span className="text-3xl text-indigo-600 font-bold hidden md:block">=</span>
-            <div className="bg-white/10 px-10 py-6 rounded-[2.5rem] border border-white/20 shadow-2xl backdrop-blur-md">
-              <span className="text-indigo-300 text-[10px] font-black uppercase block mb-2">종합 RPI 지수</span>
-              <span className="text-6xl font-black text-white">{data.rpiScore}</span>
+
+            <div className="bg-white text-slate-900 px-12 py-8 rounded-[2.5rem] shadow-2xl text-center min-w-[200px]">
+              <span className="text-slate-400 text-[10px] font-black uppercase block mb-1">최종 관계인구 지수</span>
+              <span className="text-6xl font-black tracking-tighter">{data.rpiScore}</span>
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { label: '정서적 애착', weight: data.weights.alpha, score: data.metrics.emo, color: 'indigo', desc: '지역에 대한 심리적 본딩' },
-          { label: '공간적 점유', weight: data.weights.beta, score: data.metrics.spa, color: 'emerald', desc: '물리적 체류 및 활동성' },
-          { label: '사회적 교류', weight: data.weights.gamma, score: data.metrics.soc, color: 'amber', desc: '인적 네트워크 형성도' },
-        ].map((item) => (
-          <div key={item.label} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col justify-between group hover:border-indigo-200 transition-all">
-            <div className="flex justify-between items-start">
-              <div>
-                <span className={`text-[10px] font-black uppercase tracking-widest text-${item.color}-500 mb-1 block`}>{item.desc}</span>
-                <h4 className="text-xl font-bold text-slate-800">{item.label}</h4>
-              </div>
-              <div className={`px-3 py-1 bg-${item.color}-50 text-${item.color}-600 rounded-full text-xs font-black border border-${item.color}-100`}>
-                중요도 {item.weight.toFixed(2)}
-              </div>
-            </div>
-            <div className="mt-8 flex items-baseline gap-2">
-              <span className="text-6xl font-black text-slate-900">{item.score}</span>
-              <span className="text-slate-400 font-bold">점</span>
-            </div>
-            <div className="mt-6 w-full h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-              <div 
-                className={`h-full bg-${item.color}-500 rounded-full transition-all duration-1000 ease-out`}
-                style={{ width: `${item.score}%` }}
-              ></div>
-            </div>
-          </div>
-        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-8 rounded-[3rem] shadow-2xl border border-slate-100">
+        {/* 요인별 밸런스 */}
+        <div className="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100">
           <h3 className="text-xl font-black text-slate-800 mb-8 flex items-center gap-3">
             <span className="w-2.5 h-7 bg-indigo-600 rounded-full"></span>
             지표 밸런스 분석
@@ -112,7 +77,7 @@ const RPIVisualization: React.FC<Props> = ({ data }) => {
                   dataKey="A"
                   stroke="#4f46e5"
                   fill="#4f46e5"
-                  fillOpacity={0.2}
+                  fillOpacity={0.25}
                   strokeWidth={4}
                 />
               </RadarChart>
@@ -120,16 +85,17 @@ const RPIVisualization: React.FC<Props> = ({ data }) => {
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-[3rem] shadow-2xl border border-slate-100">
+        {/* 감성 궤적 */}
+        <div className="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100">
           <h3 className="text-xl font-black text-slate-800 mb-8 flex items-center gap-3">
             <span className="w-2.5 h-7 bg-rose-500 rounded-full"></span>
-            단계별 관계 형성 궤적
+            관계 형성 감성 궤적
           </h3>
           <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.trajectory || []}>
                 <defs>
-                  <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="colorTrajectory" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
                   </linearGradient>
@@ -139,6 +105,7 @@ const RPIVisualization: React.FC<Props> = ({ data }) => {
                 <YAxis hide domain={[0, 100]} />
                 <ChartTooltip 
                   contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                  itemStyle={{ fontWeight: 'bold', color: '#f43f5e' }}
                 />
                 <Area 
                   type="monotone" 
@@ -146,77 +113,74 @@ const RPIVisualization: React.FC<Props> = ({ data }) => {
                   stroke="#f43f5e" 
                   strokeWidth={4} 
                   fillOpacity={1} 
-                  fill="url(#colorScore)"
+                  fill="url(#colorTrajectory)"
                   dot={{ r: 6, fill: '#f43f5e', strokeWidth: 3, stroke: '#fff' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-6 flex items-center justify-between px-6 py-4 bg-rose-50 rounded-3xl border border-rose-100">
-             <div className="flex items-center gap-3">
-               <span className="text-2xl">⚡</span>
-               <div>
-                 <span className="text-[10px] font-black text-rose-400 uppercase tracking-tighter">분석된 결정적 시점</span>
-                 <div className="text-sm font-black text-rose-700">{data.criticalPeriod}</div>
-               </div>
-             </div>
-             <span className="text-xs font-bold text-rose-400 bg-white px-3 py-1 rounded-full shadow-sm">분석: 긍정적 유대감 형성</span>
+          <div className="mt-8 flex items-center justify-between p-6 bg-rose-50 rounded-3xl border border-rose-100/50">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-rose-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-rose-200">✨</div>
+              <div>
+                <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">결정적 순간</span>
+                <div className="text-base font-black text-rose-800">{data.criticalPeriod}</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-slate-950 p-10 rounded-[4rem] shadow-3xl relative overflow-hidden group">
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none"></div>
+      {/* 시공간 지식 그래프 */}
+      <div className="bg-slate-950 p-12 rounded-[4rem] shadow-3xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none"></div>
         <div className="relative z-10">
-          <div className="flex justify-between items-end mb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div>
-              <h3 className="text-white text-3xl font-black mb-2 flex items-center gap-3">
-                <span className="w-2.5 h-8 bg-cyan-400 rounded-full"></span>
+              <h3 className="text-white text-3xl font-black mb-2 flex items-center gap-4">
+                <span className="w-2.5 h-10 bg-cyan-400 rounded-full"></span>
                 시공간 지식 그래프
               </h3>
-              <p className="text-slate-400 font-medium text-sm italic">텍스트 맥락에서 추출된 장소와 활동 간의 시맨틱 관계망</p>
+              <p className="text-slate-400 font-medium italic">텍스트 맥락에서 AI가 학습한 핵심 개체 연관 관계</p>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-            <div className="xl:col-span-4 space-y-4">
-               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">추출된 핵심 엔티티</h4>
-               <div className="flex flex-wrap gap-2">
-                 {(data.knowledgeGraph?.nodes || []).map(node => (
-                    <div key={node.id} className={`px-4 py-2 rounded-2xl border flex items-center gap-3 transition-all hover:scale-105 ${
-                      node.type === 'Place' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400' :
-                      node.type === 'Activity' ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300' :
-                      'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                    }`}>
-                      <div className={`w-1.5 h-1.5 rounded-full ${
-                        node.type === 'Place' ? 'bg-cyan-400' : node.type === 'Activity' ? 'bg-indigo-400' : 'bg-emerald-400'
-                      }`}></div>
-                      <span className="font-bold text-sm">{node.label}</span>
-                    </div>
-                 ))}
-               </div>
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-12">
+            <div className="xl:col-span-4 space-y-6">
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">추출된 핵심 요소</h4>
+              <div className="flex flex-wrap gap-2">
+                {(data.knowledgeGraph?.nodes || []).map(node => (
+                  <div key={node.id} className={`px-5 py-2.5 rounded-2xl border flex items-center gap-3 transition-all hover:scale-105 ${
+                    node.type === 'Place' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400' :
+                    node.type === 'Activity' ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300' :
+                    'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${
+                      node.type === 'Place' ? 'bg-cyan-400' : node.type === 'Activity' ? 'bg-indigo-400' : 'bg-emerald-400'
+                    }`}></div>
+                    <span className="font-bold text-sm">{node.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="xl:col-span-8">
-               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">연관 강도 분석</h4>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {(data.knowledgeGraph?.edges || []).slice(0, 10).map((edge, idx) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 p-5 rounded-3xl flex items-center justify-between group/edge hover:bg-white/10 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <span className="text-slate-200 font-bold text-sm">{edge.source}</span>
-                        <div className="flex items-center">
-                          <div className="w-1 h-1 bg-slate-600 rounded-full"></div>
-                          <div className="w-12 h-[1px] bg-gradient-to-r from-slate-600 to-transparent"></div>
-                        </div>
-                        <span className="text-slate-200 font-bold text-sm">{edge.target}</span>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-xs font-black text-cyan-400">{(edge.strength * 100).toFixed(0)}%</span>
-                        <span className="text-[8px] font-bold text-slate-500 uppercase">Context Strength</span>
-                      </div>
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-6">연관 연산 분석</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(data.knowledgeGraph?.edges || []).slice(0, 8).map((edge, idx) => (
+                  <div key={idx} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex items-center justify-between hover:bg-white/10 transition-all group/edge">
+                    <div className="flex items-center gap-4">
+                      <span className="text-slate-200 font-black text-sm">{edge.source}</span>
+                      <div className="w-8 h-[2px] bg-slate-700 group-hover/edge:bg-indigo-500 transition-colors"></div>
+                      <span className="text-slate-200 font-black text-sm">{edge.target}</span>
                     </div>
-                  ))}
-               </div>
+                    <div className="text-right">
+                      <div className="text-cyan-400 font-black text-xs">{(edge.strength * 100).toFixed(0)}%</div>
+                      <span className="text-[8px] font-bold text-slate-600 uppercase">Weight</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
