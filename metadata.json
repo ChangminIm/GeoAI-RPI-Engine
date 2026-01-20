@@ -1,0 +1,5 @@
+{
+  "name": "Attention-Driven Relationship Population Analyzer",
+  "description": "An AI-powered application that utilizes the Attention Mechanism concept to analyze text contexts and determine key factors contributing to the formation of 'Relationship Population' (Kwangye-Ingu).",
+  "requestFramePermissions": []
+}
