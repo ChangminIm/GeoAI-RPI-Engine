@@ -3,7 +3,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "../types";
 
 export const analyzeRelationshipContext = async (text: string): Promise<AnalysisResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.VITE_GEMINI_API_KEY });
 
   const prompt = `
     당신은 개인과 지역의 유대 관계를 분석하는 'GeoAI 관계인구 분석 전문가'입니다.
