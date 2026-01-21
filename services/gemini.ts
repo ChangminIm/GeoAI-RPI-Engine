@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "../types";
 
 // Vite가 주입하는 환경 변수 타입을 인식시키기 위함
-const API_KEY = (process.env as any).API_KEY;
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 export const analyzeRelationshipContext = async (text: string): Promise<AnalysisResult> => {
   if (!API_KEY) {
