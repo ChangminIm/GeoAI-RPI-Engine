@@ -1,15 +1,20 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "../types";
 
+// Vite가 주입하는 환경 변수 타입을 인식시키기 위함
+const API_KEY = (process.env as any).API_KEY;
+
 export const analyzeRelationshipContext = async (text: string): Promise<AnalysisResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!API_KEY) {
+    throw new Error("API_KEY가 설정되지 않았습니다. Vercel 설정에서 Environment Variables를 확인하세요.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
 
   const prompt = `
     당신은 개인과 지역의 유대 관계를 분석하는 'GeoAI 관계인구 분석 전문가'입니다.
     다음 텍스트를 분석하여 '관계인구 지수(RPI)'를 산출하고 결과를 JSON으로 반환하세요.
     모든 숫자 결과(rpiScore, metrics, shapValue, weights)는 반드시 소수점 2자리 이하의 실수 혹은 정수로만 작성하세요. 
-    불필요하게 긴 소수점 나열은 파싱 에러를 유발하므로 절대 금지합니다.
 
     분석 기준:
     - metrics: emo(정서), spa(공간), soc(사회) 각 0-100점
@@ -109,7 +114,6 @@ export const analyzeRelationshipContext = async (text: string): Promise<Analysis
     
     try {
       const result = JSON.parse(jsonString);
-      // 안전을 위한 후처리 라운딩
       ['rpiScore', 'metrics', 'weights', 'shapValue'].forEach(key => {
         if (result[key] && typeof result[key] === 'object') {
           Object.keys(result[key]).forEach(subKey => {
@@ -122,7 +126,7 @@ export const analyzeRelationshipContext = async (text: string): Promise<Analysis
       return result as AnalysisResult;
     } catch (e) {
       console.error("Parse Error Details:", jsonString);
-      throw new Error("AI가 생성한 데이터의 형식이 올바르지 않습니다. 다시 시도해 주세요.");
+      throw new Error("AI 데이터 형식이 올바르지 않습니다.");
     }
   } catch (error: any) {
     console.error("Gemini API Error:", error);
