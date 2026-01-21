@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { analyzeRelationshipContext } from './services/gemini';
 import { AnalysisResult, HistoryItem } from './types';
 import RPIVisualization from './components/RPIVisualization';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 const App: React.FC = () => {
   const [inputText, setInputText] = useState('');
@@ -10,9 +12,9 @@ const App: React.FC = () => {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
-  // 결과가 업데이트될 때 결과 섹션으로 부드럽게 스크롤
   useEffect(() => {
     if (result && resultRef.current) {
       const offset = resultRef.current.offsetTop - 100;
@@ -22,17 +24,12 @@ const App: React.FC = () => {
 
   const handleAnalyze = async () => {
     if (!inputText.trim() || isAnalyzing) return;
-    
-    // 1. 상태 전면 초기화 (두 번째 분석 시 충돌 방지)
     setIsAnalyzing(true);
     setError(null);
     setResult(null); 
     
     try {
-      // 2. API 호출
       const analysisResult = await analyzeRelationshipContext(inputText);
-      
-      // 3. 결과 반영
       setResult(analysisResult);
       
       const newHistoryItem: HistoryItem = {
@@ -43,12 +40,65 @@ const App: React.FC = () => {
       };
       setHistory(prev => [newHistoryItem, ...prev.slice(0, 7)]);
     } catch (err: any) {
-      console.error("Analysis failed:", err);
-      setError(err.message || '분석 과정에서 기술적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
-      // 에러 시 스크롤을 위로 올려 사용자가 에러를 확인하게 함
+      setError(err.message || '분석 과정에서 문제가 발생했습니다.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!resultRef.current || isDownloading) return;
+    setIsDownloading(true);
+    
+    try {
+      const element = resultRef.current;
+      
+      // 캡처 최적화 설정
+      const canvas = await html2canvas(element, {
+        scale: 1.5, // 용량과 품질의 균형 (기존 2.0에서 하향)
+        useCORS: true,
+        backgroundColor: '#f8fafc',
+        logging: false,
+        height: element.scrollHeight, // 전체 높이 캡처
+        windowHeight: element.scrollHeight,
+        onclone: (clonedDoc) => {
+          // 캡처용 클론에서 다운로드 버튼 숨기기
+          const btn = clonedDoc.querySelector('.pdf-ignore');
+          if (btn) (btn as HTMLElement).style.display = 'none';
+        }
+      });
+
+      // JPEG 압축 적용 (0.75 품질로 용량 최소화)
+      const imgData = canvas.toDataURL('image/jpeg', 0.75);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // 첫 페이지 추가
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+      heightLeft -= pageHeight;
+
+      // 내용이 길 경우 다음 페이지 자동 생성
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+        heightLeft -= pageHeight;
+      }
+      
+      pdf.save(`RPI_Report_${new Date().getTime()}.pdf`);
+    } catch (err) {
+      console.error('PDF creation failed:', err);
+      alert('PDF 리포트 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -59,6 +109,13 @@ const App: React.FC = () => {
       setResult(item.result);
       setInputText(item.text);
     }, 50);
+  };
+
+  const getScoreInfo = (score: number) => {
+    if (score >= 85) return { label: 'Settlement: 생활 인구화', desc: '지역과 심리적, 공간적으로 완전히 동화된 정주 인구 수준의 유대를 보입니다.', color: 'emerald' };
+    if (score >= 60) return { label: 'Bonding: 유대 강화 단계', desc: '주기적인 방문과 사회적 교류를 통해 지역의 주요 관계자로 자리 잡았습니다.', color: 'indigo' };
+    if (score >= 35) return { label: 'Formation: 관계 형성 단계', desc: '지역에 대한 호감을 바탕으로 고유의 활동 범위를 넓혀가는 탐색기입니다.', color: 'amber' };
+    return { label: 'Entry: 초기 진입 단계', desc: '단순 방문자 이상의 관심을 갖기 시작한 초기 인지 단계입니다.', color: 'rose' };
   };
 
   return (
@@ -105,9 +162,9 @@ const App: React.FC = () => {
           <div className="bg-white p-10 rounded-[3.5rem] shadow-3xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group">
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-8">
-                 <div className="px-5 py-2 bg-indigo-50 text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-100">분석 콘솔 (Analysis)</div>
+                 <div className="px-5 py-2 bg-indigo-50 text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-100">분석 콘솔 (Analysis Console)</div>
                  <div className="h-[1px] w-24 bg-slate-100"></div>
-                 <span className="text-xs font-bold text-slate-400 italic">Gemini 3 Pro + Attention Analytics</span>
+                 <span className="text-xs font-bold text-slate-400 italic">Gemini 3 Pro + Attention Framework</span>
               </div>
               
               <textarea
@@ -121,20 +178,20 @@ const App: React.FC = () => {
               <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-10">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Architecture</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Methodology</span>
                       <span className="text-sm font-bold text-slate-800">Self-Attention</span>
                    </div>
                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">AI Engine</span>
-                      <span className="text-sm font-bold text-slate-800">Gemini 3 Pro</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Processing</span>
+                      <span className="text-sm font-bold text-slate-800">Context Mining</span>
                    </div>
                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Explainability</span>
-                      <span className="text-sm font-bold text-slate-800">XAI Framework</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Evaluation</span>
+                      <span className="text-sm font-bold text-slate-800">XAI Metric</span>
                    </div>
                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Metric Scale</span>
-                      <span className="text-sm font-bold text-slate-800">0 - 100 Index</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Standard</span>
+                      <span className="text-sm font-bold text-slate-800">RPI Standard v2</span>
                    </div>
                 </div>
 
@@ -143,7 +200,7 @@ const App: React.FC = () => {
                   disabled={isAnalyzing || !inputText.trim()}
                   className={`group relative flex items-center gap-6 px-16 py-8 rounded-[2.5rem] font-black text-2xl transition-all overflow-hidden ${
                     isAnalyzing || !inputText.trim()
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                       : 'bg-slate-900 text-white hover:bg-black hover:scale-[1.02] active:scale-95 shadow-2xl shadow-indigo-200'
                   }`}
                 >
@@ -171,18 +228,29 @@ const App: React.FC = () => {
                <span className="text-xs uppercase tracking-widest text-rose-400 mb-1">System Message</span>
                <span className="text-lg">{error}</span>
             </div>
-            <button 
-              onClick={() => setError(null)}
-              className="ml-auto text-rose-400 hover:text-rose-600 text-sm font-bold underline"
-            >
-              닫기
-            </button>
+            <button onClick={() => setError(null)} className="ml-auto text-rose-400 hover:text-rose-600 text-sm font-bold underline">닫기</button>
           </div>
         )}
 
-        <div ref={resultRef}>
+        <div ref={resultRef} className="rounded-[4rem] overflow-hidden">
           {result && (
-            <div className="space-y-20 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+            <div className="space-y-20 p-8 bg-slate-50">
+              <div className="flex justify-between items-center mb-4 pdf-ignore">
+                 <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic opacity-20">Analysis Report Generated by GeoAI</h3>
+                 <button 
+                  onClick={handleDownloadPDF}
+                  disabled={isDownloading}
+                  className="flex items-center gap-3 px-8 py-4 bg-white border border-slate-200 rounded-2xl font-black text-sm text-slate-600 hover:bg-slate-50 transition-all shadow-lg shadow-slate-200/50 active:scale-95"
+                 >
+                   {isDownloading ? (
+                     <span className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></span>
+                   ) : (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                   )}
+                   {isDownloading ? '생성 중...' : 'PDF 리포트 다운로드'}
+                 </button>
+              </div>
+
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 <div className="lg:col-span-5 bg-slate-950 p-16 rounded-[4.5rem] text-white shadow-3xl flex flex-col items-center justify-center text-center relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-transparent to-cyan-500/10 opacity-60"></div>
@@ -194,23 +262,42 @@ const App: React.FC = () => {
                         </div>
                       </div>
                       <div className={`px-10 py-5 rounded-[2rem] border-2 font-black text-xl tracking-tight mb-6 shadow-2xl ${
-                        result.rpiScore >= 80 ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400' : 
-                        result.rpiScore >= 50 ? 'border-indigo-500/40 bg-indigo-500/10 text-indigo-400' : 
+                        result.rpiScore >= 85 ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400' : 
+                        result.rpiScore >= 60 ? 'border-indigo-500/40 bg-indigo-500/10 text-indigo-400' : 
+                        result.rpiScore >= 35 ? 'border-amber-500/40 bg-amber-500/10 text-amber-400' :
                         'border-rose-500/40 bg-rose-500/10 text-rose-400'
                       }`}>
-                        {result.rpiScore >= 80 ? '안정 정착 단계' : 
-                        result.rpiScore >= 50 ? '유망 관계 확장 단계' : '초기 진입 단계'}
+                        {getScoreInfo(result.rpiScore).label}
                       </div>
                   </div>
                 </div>
 
-                <div className="lg:col-span-7 bg-white p-14 rounded-[4.5rem] shadow-3xl border border-slate-100 flex flex-col justify-between">
+                <div className="lg:col-span-7 bg-white p-14 rounded-[4.5rem] shadow-3xl border border-slate-100 flex flex-col gap-10">
                   <div>
-                    <h3 className="text-3xl font-black text-slate-800 tracking-tight mb-12 flex items-center gap-4">
+                    <h3 className="text-3xl font-black text-slate-800 tracking-tight mb-8 flex items-center gap-4">
                       <span className="w-1.5 h-8 bg-indigo-600 rounded-full"></span>
-                      지표 기여도 분석
+                      지표별 관계 스펙트럼
                     </h3>
-                    <div className="space-y-12">
+                    
+                    {/* 레전드 섹션 */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+                      {[
+                        { range: '85 - 100', color: 'bg-emerald-500', label: 'Settlement', desc: '정주 및 완벽 동화' },
+                        { range: '60 - 84', color: 'bg-indigo-500', label: 'Bonding', desc: '강력한 정서적 유대' },
+                        { range: '35 - 59', color: 'bg-amber-500', label: 'Formation', desc: '관계 형성 및 탐색기' },
+                        { range: '0 - 34', color: 'bg-rose-500', label: 'Entry', desc: '초기 인지 및 진입' },
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-4 p-4 rounded-3xl bg-slate-50 border border-slate-100">
+                          <div className={`w-3 h-10 rounded-full ${item.color} shrink-0`}></div>
+                          <div>
+                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.range}</div>
+                            <div className="text-sm font-black text-slate-800 leading-tight">{item.label}: {item.desc}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-10">
                       {[
                         { key: 'emo', label: '정서적 애착', color: 'indigo' },
                         { key: 'spa', label: '공간적 점유', color: 'emerald' },
@@ -226,9 +313,9 @@ const App: React.FC = () => {
                                 {val >= 0 ? '+' : ''}{val.toFixed(2)}
                               </span>
                             </div>
-                            <div className="w-full h-6 bg-slate-50 rounded-full overflow-hidden p-1.5 border border-slate-100 shadow-inner">
+                            <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden">
                               <div 
-                                className={`h-full bg-${item.color}-500 rounded-full transition-all duration-[2s] ease-out`}
+                                className={`h-full bg-${item.color}-500 transition-all duration-[2s] ease-out`}
                                 style={{ width: `${percentage}%` }}
                               ></div>
                             </div>
@@ -238,11 +325,11 @@ const App: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="mt-14 pt-12 border-t border-slate-100 flex gap-6 items-start">
-                    <div className="w-16 h-16 bg-indigo-50 rounded-[1.75rem] flex items-center justify-center shrink-0 text-indigo-500 shadow-sm border border-indigo-100">
-                      <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1z" /></svg>
+                  <div className="pt-8 border-t border-slate-100 flex gap-6 items-start">
+                    <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center shrink-0 text-indigo-500 border border-indigo-100">
+                      <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1z" /></svg>
                     </div>
-                    <p className="text-lg font-bold text-slate-500 leading-relaxed italic">
+                    <p className="text-lg font-bold text-slate-600 leading-relaxed italic">
                       "{result.summary}"
                     </p>
                   </div>
@@ -255,7 +342,7 @@ const App: React.FC = () => {
         </div>
 
         {history.length > 0 && (
-          <div className="pt-24 border-t border-slate-200">
+          <div className="pt-24 border-t border-slate-200 pdf-ignore">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.5em] mb-12">Data Archive</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-2">
               {history.map((item) => (
@@ -263,7 +350,7 @@ const App: React.FC = () => {
                   key={item.id}
                   onClick={() => loadFromHistory(item)}
                   className={`bg-white p-10 rounded-[3rem] border text-left hover:shadow-3xl transition-all group ${
-                    result?.id === item.id ? 'border-indigo-500 shadow-xl' : 'border-slate-200'
+                    result?.rpiScore === item.result.rpiScore ? 'border-indigo-500 shadow-xl' : 'border-slate-200'
                   }`}
                 >
                   <div className="flex justify-between items-center mb-8">
